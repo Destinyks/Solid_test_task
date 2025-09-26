@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(const MyApp());
 
@@ -55,6 +56,21 @@ class _RandomColorScreenState extends State<RandomColorScreen> {
     return brightness > _brightnessThreshold ? Colors.black : Colors.white;
   }
 
+  String _colorToHex(Color color) {
+    return '#'
+        '${color.red.toRadixString(16).padLeft(2, '0').toUpperCase()}'
+        '${color.green.toRadixString(16).padLeft(2, '0').toUpperCase()}'
+        '${color.blue.toRadixString(16).padLeft(2, '0').toUpperCase()}';
+  }
+
+  void _copyHexToClipboard() {
+    final hex = _colorToHex(_backgroundColor);
+    Clipboard.setData(ClipboardData(text: hex));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('HEX $hex скопирован!')));
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -62,12 +78,30 @@ class _RandomColorScreenState extends State<RandomColorScreen> {
       child: ColoredBox(
         color: _backgroundColor,
         child: Center(
-          child: Text(
-            'Hey there',
-            style: TextStyle(
-              fontSize: 32,
-              color: _getContrastingTextColor(_backgroundColor),
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Hey there',
+                style: TextStyle(
+                  fontSize: 32,
+                  color: _getContrastingTextColor(_backgroundColor),
+                ),
+              ),
+              const SizedBox(height: 8),
+              GestureDetector(
+                onTap: _copyHexToClipboard,
+                child: Text(
+                  _colorToHex(_backgroundColor),
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: _getContrastingTextColor(
+                      _backgroundColor,
+                    ).withValues(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
